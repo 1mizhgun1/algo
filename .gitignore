@@ -3,10 +3,8 @@
 *.dll
 *.so
 *.dylib
-*.env
 *.tmp
 *.bat
-*.txt
 *.log
 *.test
 *.out

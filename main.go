@@ -42,6 +42,7 @@ func main() {
 	})
 
 	r.Handle("/calc_path", http.HandlerFunc(handlers.SolveMazeHandler)).Methods(http.MethodPost, http.MethodOptions)
+
 	a_star.TestAStar()
 
 	http.Handle("/", r)

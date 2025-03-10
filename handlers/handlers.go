@@ -30,11 +30,22 @@ func SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if board[req.Start.X][req.Start.Y] {
+		utils.LogErrorMessage(ctx, fmt.Sprintf("start point (%d,%d)=1, it is wall", req.Start.X, req.Start.Y))
+		http.Error(w, utils.Invalid, http.StatusBadRequest)
+		return
+	}
+
 	boundaryCells := make([][2]int, 0)
 	if len(req.End) == 0 {
 		boundaryCells = a_star.GetBoundaryCells(board, req.Start.X, req.Start.Y)
 	} else {
 		for _, end := range req.End {
+			if board[end.X][end.Y] {
+				utils.LogErrorMessage(ctx, fmt.Sprintf("end point (%d,%d)=1, it is wall", end.X, end.Y))
+				http.Error(w, utils.Invalid, http.StatusBadRequest)
+				return
+			}
 			boundaryCells = append(boundaryCells, [2]int{end.X, end.Y})
 		}
 	}
