@@ -188,7 +188,7 @@ func printBoard(board [][]bool, path []algorithms.Node, targets [][2]int, startX
 }
 
 func TestAStar() {
-	board, err := maze.ParseMaze(os.Getenv("MAZE_FILE_1"))
+	board, err := maze.ParseMaze(os.Getenv("MAZE_FILE_2"))
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to parse maze"))
 	}
