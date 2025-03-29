@@ -5,15 +5,25 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"algo/algorithms"
 	"algo/algorithms/a_star"
+	"algo/config"
 	"algo/handlers/models"
 	"algo/maze"
 	"algo/utils"
 )
 
-func SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
+type App struct {
+	cfg config.AppConfig
+}
+
+func NewApp(cfg config.AppConfig) *App {
+	return &App{cfg}
+}
+
+func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var req models.SolveMazeInput
@@ -27,6 +37,12 @@ func SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.LogError(ctx, err, "failed to parse maze")
 		http.Error(w, utils.Internal, http.StatusInternalServerError)
+		return
+	}
+
+	if err = req.Validate(app.cfg, len(board[0]), len(board)); err != nil {
+		utils.LogError(ctx, err, "failed to validate maze")
+		http.Error(w, utils.Invalid, http.StatusBadRequest)
 		return
 	}
 
@@ -95,4 +111,95 @@ func SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, utils.Internal, http.StatusInternalServerError)
 		return
 	}
+}
+
+func (app *App) UpdateMazeHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var req models.UpdateMazeInput
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.LogError(ctx, err, utils.MsgErrUnmarshalRequest)
+		http.Error(w, utils.Invalid, http.StatusBadRequest)
+		return
+	}
+
+	filename := os.Getenv(fmt.Sprintf("MAZE_FILE_%d", req.MazeID))
+
+	board, err := maze.ParseMaze(filename)
+	if err != nil {
+		utils.LogError(ctx, err, "failed to parse maze")
+		http.Error(w, utils.Internal, http.StatusInternalServerError)
+		return
+	}
+
+	if err = req.Validate(app.cfg, len(board[0]), len(board)); err != nil {
+		utils.LogError(ctx, err, "failed to validate maze")
+		http.Error(w, utils.Invalid, http.StatusBadRequest)
+		return
+	}
+
+	newBoard, err := maze.UpdateMaze(filename, board, req.Points)
+	if err != nil {
+		utils.LogError(ctx, err, "failed to update maze")
+		http.Error(w, utils.Internal, http.StatusInternalServerError)
+		return
+	}
+
+	resp := models.UpdateMazeOutput{Map: toIntMap(newBoard)}
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
+		utils.LogError(ctx, err, utils.MsgErrMarshalResponse)
+		http.Error(w, utils.Internal, http.StatusInternalServerError)
+		return
+	}
+}
+
+func (app *App) GetMazeHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	mazeIDString := r.URL.Query().Get("labirint_id")
+	mazeID, err := strconv.ParseInt(mazeIDString, 10, 64)
+	if err != nil {
+		utils.LogError(ctx, err, "failed to parse maze id")
+		http.Error(w, utils.Invalid, http.StatusBadRequest)
+		return
+	}
+
+	req := models.GetMazeInput{MazeID: int(mazeID)}
+	if err = req.Validate(app.cfg); err != nil {
+		utils.LogError(ctx, err, "invalid maze id")
+		http.Error(w, utils.Invalid, http.StatusBadRequest)
+		return
+	}
+
+	filename := os.Getenv(fmt.Sprintf("MAZE_FILE_%d", req.MazeID))
+
+	board, err := maze.ParseMaze(filename)
+	if err != nil {
+		utils.LogError(ctx, err, "failed to parse maze")
+		http.Error(w, utils.Internal, http.StatusInternalServerError)
+		return
+	}
+
+	resp := models.GetMazeOutput{Map: toIntMap(board)}
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
+		utils.LogError(ctx, err, utils.MsgErrMarshalResponse)
+		http.Error(w, utils.Internal, http.StatusInternalServerError)
+		return
+	}
+}
+
+func toIntMap(board [][]bool) [][]int {
+	result := make([][]int, len(board))
+	for i, row := range board {
+		result[i] = make([]int, len(row))
+		for j, cell := range row {
+			if cell {
+				result[i][j] = 1
+			} else {
+				result[i][j] = 0
+			}
+		}
+	}
+
+	return result
 }

@@ -32,6 +32,8 @@ func main() {
 	cfg := config.MustLoadConfig(os.Getenv("CONFIG_FILE"), logger)
 	logger.Info("Config file loaded")
 
+	app := handlers.NewApp(cfg.App)
+
 	reqIDMiddleware := middleware.CreateRequestIDMiddleware(logger)
 
 	r := mux.NewRouter().PathPrefix("/api/v1").Subrouter()
@@ -41,7 +43,9 @@ func main() {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
-	r.Handle("/calc_path", http.HandlerFunc(handlers.SolveMazeHandler)).Methods(http.MethodPost, http.MethodOptions)
+	r.Handle("/calc_path", http.HandlerFunc(app.SolveMazeHandler)).Methods(http.MethodPost, http.MethodOptions)
+	r.Handle("/update_map", http.HandlerFunc(app.UpdateMazeHandler)).Methods(http.MethodPost, http.MethodOptions)
+	r.Handle("/get_map", http.HandlerFunc(app.GetMazeHandler)).Methods(http.MethodGet, http.MethodOptions)
 
 	a_star.TestAStar()
 
