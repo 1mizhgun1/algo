@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"time"
 
 	"algo/algorithms"
 	"algo/maze"
@@ -229,7 +230,11 @@ func TestLazyThetaStar() {
 		return
 	}
 
+	startTime := time.Now()
 	distance, path := LazyThetaStar(board, startX, startY, boundaryCells)
+	endTime := time.Now()
+	log.Printf("Время работы: %d\n", endTime.Sub(startTime))
+
 	if distance != -1 {
 		log.Printf("Кратчайшее расстояние до выхода: %d\n", distance)
 		log.Println("Лабиринт с выделенным путем:")
