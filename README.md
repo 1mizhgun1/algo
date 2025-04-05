@@ -53,7 +53,7 @@ curl --location 'http://127.0.0.1:8080/api/v1/calc_path' \
 - `1`: файл `maze/labyrinth_matrix_41x41.txt`
 - `2`: файл `maze/labyrinth_matrix_41x41_many_targets.txt`
 
-Параметр `algorithm_id` пока что может принимать только значение `1`, что соответсвует алгоритму `A*`.
+Параметр `algorithm_id` пока что может принимать значение `1`, что соответсвует алгоритму `A*`, и значение `2`, что соответствует алгоритму `Lazy Theta*`.
 
 Ответ:
 
@@ -121,8 +121,32 @@ curl --location 'http://127.0.0.1:8080/api/v1/update_map' \
 }
 ```
 
+### Восстановление карты лабиринта
+
+Запрос:
+
+```shell
+curl --location 'http://127.0.0.1:8080/api/v1/restore_map?labirint_id=1'
+```
+
+Ответ:
+
+```json
+{
+    "labirint": [
+        [1, 1, 1],
+        [1, 0, 1],
+        [1, 1, 1]
+    ]
+}
+```
+
 ## Визуализация работы
 
 ### Алгоритм A-star
 
 ![a-star](images/a-star.png)
+
+### Алгоритм Lazy-Theta-star
+
+===аналогично===

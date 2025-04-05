@@ -2,15 +2,12 @@ package a_star
 
 import (
 	"container/heap"
-	"fmt"
 	"log"
 	"math"
 	"os"
-	"slices"
 
 	"algo/algorithms"
 	"algo/maze"
-	"github.com/fatih/color"
 	"github.com/pkg/errors"
 )
 
@@ -43,11 +40,6 @@ func (pq *PriorityQueue) Pop() interface{} {
 // heuristic возвращает эвристическое значение между двумя узлами
 func heuristic(a, b *algorithms.Node) int {
 	return int(math.Abs(float64(a.X-b.X)) + math.Abs(float64(a.Y-b.Y)))
-}
-
-// isValid проверяет, является ли позиция допустимой (на доске и не является стеной)
-func isValid(board [][]bool, x, y int) bool {
-	return x >= 0 && x < len(board) && y >= 0 && y < len(board[0]) && !board[x][y]
 }
 
 // isInClosedList проверяет, находится ли узел в закрытом списке
@@ -97,7 +89,7 @@ func AStar(board [][]bool, startX, startY int, targets [][2]int) (int, []algorit
 		neighbors := [][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 		for _, dir := range neighbors {
 			neighbor := &algorithms.Node{X: current.X + dir[0], Y: current.Y + dir[1]}
-			if !isValid(board, neighbor.X, neighbor.Y) || isInClosedList(closedList, neighbor) {
+			if !algorithms.IsValid(board, neighbor.X, neighbor.Y) || isInClosedList(closedList, neighbor) {
 				continue
 			}
 
@@ -121,72 +113,6 @@ func AStar(board [][]bool, startX, startY int, targets [][2]int) (int, []algorit
 	return algorithms.PathNotFound, nil
 }
 
-// GetBoundaryCells возвращает массив всех пустых клеток на границе матрицы, отличных от стартовой клетки
-func GetBoundaryCells(board [][]bool, startX, startY int) [][2]int {
-	var boundaryCells [][2]int
-	rows := len(board)
-	cols := len(board[0])
-
-	// Проверяем верхнюю границу
-	for y := 0; y < cols; y++ {
-		if isValid(board, 0, y) && !(startX == 0 && startY == y) {
-			boundaryCells = append(boundaryCells, [2]int{0, y})
-		}
-	}
-
-	// Проверяем нижнюю границу
-	for y := 0; y < cols; y++ {
-		if isValid(board, rows-1, y) && !(startX == rows-1 && startY == y) {
-			boundaryCells = append(boundaryCells, [2]int{rows - 1, y})
-		}
-	}
-
-	// Проверяем левую границу
-	for x := 0; x < rows; x++ {
-		if isValid(board, x, 0) && !(startX == x && startY == 0) {
-			boundaryCells = append(boundaryCells, [2]int{x, 0})
-		}
-	}
-
-	// Проверяем правую границу
-	for x := 0; x < rows; x++ {
-		if isValid(board, x, cols-1) && !(startX == x && startY == cols-1) {
-			boundaryCells = append(boundaryCells, [2]int{x, cols - 1})
-		}
-	}
-
-	return boundaryCells
-}
-
-// printBoard выводит матрицу лабиринта в терминал, выделяя путь
-func printBoard(board [][]bool, path []algorithms.Node, targets [][2]int, startX int, startY int) {
-	pathMap := make(map[[2]int]bool)
-	for _, node := range path {
-		pathMap[[2]int{node.X, node.Y}] = true
-	}
-
-	red := color.New(color.FgRed).SprintFunc()
-	green := color.New(color.FgGreen).SprintFunc()
-	blue := color.New(color.FgBlue).SprintFunc()
-
-	for i, row := range board {
-		for j, cell := range row {
-			if slices.Contains(targets, [2]int{i, j}) {
-				fmt.Printf("%s ", green("0"))
-			} else if i == startX && j == startY {
-				fmt.Printf("%s ", blue("0"))
-			} else if pathMap[[2]int{i, j}] {
-				fmt.Printf("%s ", red("0"))
-			} else if cell {
-				fmt.Print("1 ")
-			} else {
-				fmt.Print("0 ")
-			}
-		}
-		fmt.Println()
-	}
-}
-
 func TestAStar() {
 	board, err := maze.ParseMaze(os.Getenv("MAZE_FILE_2"))
 	if err != nil {
@@ -195,7 +121,7 @@ func TestAStar() {
 
 	startX, startY := 1, 0
 
-	boundaryCells := GetBoundaryCells(board, startX, startY)
+	boundaryCells := algorithms.GetBoundaryCells(board, startX, startY)
 	if len(boundaryCells) == 0 {
 		log.Println("Нет доступных выходных клеток на границе")
 		return
@@ -205,7 +131,7 @@ func TestAStar() {
 	if distance != -1 {
 		log.Printf("Кратчайшее расстояние до выхода: %d\n", distance)
 		log.Println("Лабиринт с выделенным путем:")
-		printBoard(board, path, boundaryCells, startX, startY)
+		algorithms.PrintBoard(board, path, boundaryCells, startX, startY)
 	} else {
 		log.Println("Путь до выхода не найден")
 	}

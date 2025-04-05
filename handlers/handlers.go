@@ -11,6 +11,7 @@ import (
 
 	"algo/algorithms"
 	"algo/algorithms/a_star"
+	"algo/algorithms/lazy_theta_star"
 	"algo/config"
 	"algo/handlers/models"
 	"algo/maze"
@@ -56,7 +57,7 @@ func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 
 	boundaryCells := make([][2]int, 0)
 	if len(req.End) == 0 {
-		boundaryCells = a_star.GetBoundaryCells(board, req.Start.X, req.Start.Y)
+		boundaryCells = algorithms.GetBoundaryCells(board, req.Start.X, req.Start.Y)
 	} else {
 		for _, end := range req.End {
 			if board[end.X][end.Y] {
@@ -77,6 +78,8 @@ func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 	switch req.AlgorithmID {
 	case 1:
 		distance, path = a_star.AStar(board, req.Start.X, req.Start.Y, boundaryCells)
+	case 2:
+		distance, path = lazy_theta_star.LazyThetaStar(board, req.Start.X, req.Start.Y, boundaryCells)
 	default:
 		utils.LogErrorMessage(ctx, fmt.Sprintf("invalid algorithm id=%d", req.AlgorithmID))
 		http.Error(w, utils.Invalid, http.StatusBadRequest)

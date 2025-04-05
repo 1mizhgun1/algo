@@ -12,6 +12,7 @@ import (
 	"syscall"
 
 	"algo/algorithms/a_star"
+	"algo/algorithms/lazy_theta_star"
 	"algo/config"
 	"algo/handlers"
 	"algo/middleware"
@@ -49,6 +50,8 @@ func main() {
 	r.Handle("/restore_map", http.HandlerFunc(app.RestoreMazeHandler)).Methods(http.MethodGet, http.MethodOptions)
 
 	a_star.TestAStar()
+	log.Println("=================================================================================================")
+	lazy_theta_star.TestLazyThetaStar()
 
 	http.Handle("/", r)
 	server := http.Server{

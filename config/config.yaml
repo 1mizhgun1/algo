@@ -7,4 +7,4 @@ main:
   shutdown_timeout: 10s
 app:
   maze_count: 2
-  algorithm_count: 1
+  algorithm_count: 2
