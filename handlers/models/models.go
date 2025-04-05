@@ -46,6 +46,14 @@ type GetMazeOutput struct {
 	Map [][]int `json:"labirint"`
 }
 
+type RestoreMazeInput struct {
+	MazeID int `json:"labirint_id"`
+}
+
+type RestoreMazeOutput struct {
+	Map [][]int `json:"labirint"`
+}
+
 func validateMazeID(mazeID int, cfg config.AppConfig) bool {
 	return 0 < mazeID && mazeID <= cfg.MazeCount
 }
@@ -95,6 +103,14 @@ func (req *UpdateMazeInput) Validate(cfg config.AppConfig, n int, m int) error {
 }
 
 func (req *GetMazeInput) Validate(cfg config.AppConfig) error {
+	if !validateMazeID(req.MazeID, cfg) {
+		return errors.New("invalid labirint_id")
+	}
+
+	return nil
+}
+
+func (req *RestoreMazeInput) Validate(cfg config.AppConfig) error {
 	if !validateMazeID(req.MazeID, cfg) {
 		return errors.New("invalid labirint_id")
 	}

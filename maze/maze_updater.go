@@ -40,3 +40,17 @@ func UpdateMaze(filename string, mazeMap [][]bool, points []models.Point) ([][]b
 
 	return mazeMap, errors.Wrap(err, "failed to write maze to file")
 }
+
+func RestoreMaze(filename string, originalFilename string) ([][]bool, error) {
+	mazeMap, err := ParseMaze(originalFilename)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse original maze")
+	}
+
+	_, err = UpdateMaze(filename, mazeMap, []models.Point{})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to update maze")
+	}
+
+	return mazeMap, nil
+}
