@@ -8,6 +8,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"algo/algorithms"
 	"algo/algorithms/a_star"
@@ -75,6 +76,7 @@ func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 		shortestPath []algorithms.Node
 	)
 
+	startTime := time.Now()
 	switch req.AlgorithmID {
 	case 1:
 		distance, shortestPath = a_star.AStar(board, req.Start.X, req.Start.Y, boundaryCells)
@@ -85,6 +87,7 @@ func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, utils.Invalid, http.StatusBadRequest)
 		return
 	}
+	endTime := time.Now()
 
 	if distance == algorithms.PathNotFound {
 		if err = json.NewEncoder(w).Encode(result); err != nil {
@@ -101,8 +104,9 @@ func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result.Time = distance
 	result.Path = make([]models.Tranzition, len(shortestPath)-1)
+	result.Dist = distance
+	result.ExecutionTime = endTime.Sub(startTime)
 
 	for i := 1; i < len(shortestPath); i++ {
 		result.Path[i-1] = models.Tranzition{

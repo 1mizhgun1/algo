@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"algo/config"
 	"github.com/pkg/errors"
@@ -15,8 +16,9 @@ type SolveMazeInput struct {
 }
 
 type SolveMazeOutput struct {
-	Path []Tranzition `json:"path"`
-	Time int          `json:"time"`
+	Path          []Tranzition  `json:"path"`
+	Dist          int           `json:"dist"`
+	ExecutionTime time.Duration `json:"time"`
 }
 
 type Tranzition struct {
