@@ -70,16 +70,16 @@ func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		result   models.SolveMazeOutput
-		distance int
-		path     []algorithms.Node
+		result       models.SolveMazeOutput
+		distance     int
+		shortestPath []algorithms.Node
 	)
 
 	switch req.AlgorithmID {
 	case 1:
-		distance, path = a_star.AStar(board, req.Start.X, req.Start.Y, boundaryCells)
+		distance, shortestPath = a_star.AStar(board, req.Start.X, req.Start.Y, boundaryCells)
 	case 2:
-		distance, path = lazy_theta_star.LazyThetaStar(board, req.Start.X, req.Start.Y, boundaryCells)
+		distance, shortestPath = lazy_theta_star.LazyThetaStar(board, req.Start.X, req.Start.Y, boundaryCells)
 	default:
 		utils.LogErrorMessage(ctx, fmt.Sprintf("invalid algorithm id=%d", req.AlgorithmID))
 		http.Error(w, utils.Invalid, http.StatusBadRequest)
@@ -95,19 +95,19 @@ func (app *App) SolveMazeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(path) == 0 {
+	if len(shortestPath) == 0 {
 		utils.LogErrorMessage(ctx, "path is empty")
 		http.Error(w, utils.Internal, http.StatusInternalServerError)
 		return
 	}
 
 	result.Time = distance
-	result.Path = make([]models.Tranzition, len(path)-1)
+	result.Path = make([]models.Tranzition, len(shortestPath)-1)
 
-	for i := 1; i < len(path); i++ {
+	for i := 1; i < len(shortestPath); i++ {
 		result.Path[i-1] = models.Tranzition{
-			Start: models.Point{X: path[i-1].X, Y: path[i-1].Y},
-			End:   models.Point{X: path[i].X, Y: path[i].Y},
+			Start: models.Point{X: shortestPath[i-1].X, Y: shortestPath[i-1].Y},
+			End:   models.Point{X: shortestPath[i].X, Y: shortestPath[i].Y},
 		}
 	}
 

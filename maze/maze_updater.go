@@ -10,7 +10,7 @@ import (
 
 func UpdateMaze(filename string, mazeMap [][]bool, points []models.Point) ([][]bool, error) {
 	for _, point := range points {
-		mazeMap[point.Y][point.X] = !mazeMap[point.Y][point.X]
+		mazeMap[point.X][point.Y] = !mazeMap[point.X][point.Y]
 	}
 
 	if err := os.Remove(filename); err != nil {

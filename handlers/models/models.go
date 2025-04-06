@@ -25,8 +25,8 @@ type Tranzition struct {
 }
 
 type Point struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	Y int `json:"x"`
+	X int `json:"y"`
 }
 
 type UpdateMazeInput struct {
@@ -63,7 +63,7 @@ func validateAlgorithmID(algorithmID int, cfg config.AppConfig) bool {
 }
 
 func validatePoint(point Point, n int, m int) bool {
-	return 0 <= point.X && point.X < n && 0 <= point.Y && point.Y < m
+	return 0 <= point.X && point.X < m && 0 <= point.Y && point.Y < n
 }
 
 func (req *SolveMazeInput) Validate(cfg config.AppConfig, n int, m int) error {

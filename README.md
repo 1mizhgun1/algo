@@ -61,12 +61,12 @@ curl --location 'http://127.0.0.1:8080/api/v1/calc_path' \
 {
     "path": [
         {
-            "start": {"x": 1, "y": 0},
+            "start": {"x": 0, "y": 1},
             "end": {"x": 1, "y": 1}
         },
         {
             "start": {"x": 1, "y": 1},
-            "end": {"x": 1, "y": 2}
+            "end": {"x": 2, "y": 1}
         }
     ]
 }
